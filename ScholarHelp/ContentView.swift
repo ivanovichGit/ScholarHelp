@@ -1,28 +1,20 @@
-//
-//  ContentView.swift
-//  ScholarHelp
-//
-//  Created by Ivanovich Chiu on 16/04/25.
-//
-
-import CoreML
 import SwiftUI
+import CoreML
 
 struct ContentView: View {
-    @State private var Age: String = ""
-    @State private var Gender: String = ""
-    @State private var Ethnicity: String = ""
-    @State private var ParentalEducation: String = ""
-    @State private var StudyTimeWeekly: String = ""
-    @State private var Absences: String = ""
-    @State private var Tutoring: String = ""
-    @State private var ParentalSupport: String = ""
-    @State private var Extracurricular: String = ""
-    @State private var Sports: String = ""
-    @State private var Music: String = ""
-    @State private var Volunteering: String = ""
-    @State private var GPA: String = ""
-    @State private var GradeClass: String = ""
+    @State private var age: Int = 10
+    @State private var gender: Bool = false // false = Male, true = Female
+    @State private var ethnicity: Int = 0
+    @State private var parentalEducation: Int = 0
+    @State private var studyTimeWeekly: Double = 0.0
+    @State private var absences: Int = 0
+    @State private var tutoring: Bool = false
+    @State private var parentalSupport: Int = 0
+    @State private var extracurricular: Bool = false
+    @State private var sports: Bool = false
+    @State private var music: Bool = false
+    @State private var volunteering: Bool = false
+    @State private var gpa: Double = 0.0
 
     @State private var alertTitle = ""
     @State private var alertMessage = ""
@@ -32,23 +24,53 @@ struct ContentView: View {
         NavigationStack {
             Form {
                 Section(header: Text("Student Information")) {
-                    TextField("Age", text: $Age)
-                        .keyboardType(.numberPad)
-                    TextField("Gender", text: $Gender)
-                    TextField("Ethnicity", text: $Ethnicity)
-                    TextField("Parental Education", text: $ParentalEducation)
-                    TextField("Study Time Weekly", text: $StudyTimeWeekly)
-                        .keyboardType(.numberPad)
-                    TextField("Absences", text: $Absences)
-                        .keyboardType(.numberPad)
-                    TextField("Tutoring", text: $Tutoring)
-                    TextField("Parental Support", text: $ParentalSupport)
-                    TextField("Extracurricular", text: $Extracurricular)
-                    TextField("Sports", text: $Sports)
-                    TextField("Music", text: $Music)
-                    TextField("Volunteering", text: $Volunteering)
-                    TextField("GPA", text: $GPA)
-                        .keyboardType(.decimalPad)
+                    Picker("Age", selection: $age) {
+                        ForEach(10...99, id: \.self) { age in
+                            Text("\(age)").tag(age)
+                        }
+                    }
+
+                    Toggle("Gender: \(gender ? "Female" : "Male")", isOn: $gender)
+
+                    Picker("Ethnicity", selection: $ethnicity) {
+                        Text("Caucasian").tag(0)
+                        Text("African-American").tag(1)
+                        Text("Asian").tag(2)
+                        Text("Other").tag(3)
+                    }
+
+                    Picker("Parental Education", selection: $parentalEducation) {
+                        Text("None").tag(0)
+                        Text("High School").tag(1)
+                        Text("Some College").tag(2)
+                        Text("Bachelors").tag(3)
+                        Text("Higher").tag(4)
+                    }
+
+                    Stepper("Study Time Weekly: \(String(format: "%.1f", studyTimeWeekly)) hours", value: $studyTimeWeekly, in: 0...40, step: 0.5)
+
+                    Picker("Absences", selection: $absences) {
+                        ForEach(0...50, id: \.self) { absence in
+                            Text("\(absence)").tag(absence)
+                        }
+                    }
+
+                    Toggle("Tutoring: \(tutoring ? "Yes" : "No")", isOn: $tutoring)
+
+                    Picker("Parental Support", selection: $parentalSupport) {
+                        Text("None").tag(0)
+                        Text("Low").tag(1)
+                        Text("Moderate").tag(2)
+                        Text("High").tag(3)
+                        Text("Very High").tag(4)
+                    }
+
+                    Toggle("Extracurricular: \(extracurricular ? "Yes" : "No")", isOn: $extracurricular)
+                    Toggle("Sports: \(sports ? "Yes" : "No")", isOn: $sports)
+                    Toggle("Music: \(music ? "Yes" : "No")", isOn: $music)
+                    Toggle("Volunteering: \(volunteering ? "Yes" : "No")", isOn: $volunteering)
+
+                    Stepper("GPA: \(String(format: "%.2f", gpa))", value: $gpa, in: 2.0...4.0, step: 0.01)
                 }
 
                 Button("Calculate Student Performance", action: calculatePerformance)
@@ -68,70 +90,39 @@ struct ContentView: View {
     }
 
     func calculatePerformance() {
-        // Validate numeric inputs
-        guard let ageVal = Int64(Age),
-              let genderVal = Int64(Gender),
-              let ethnicityVal = Int64(Ethnicity),
-              let parentalEducationVal = Int64(ParentalEducation),
-              let studyTimeWeeklyVal = Double(StudyTimeWeekly),
-              let absencesVal = Int64(Absences),
-              let tutoringVal = Int64(Tutoring),
-              let parentalSupportVal = Int64(ParentalSupport),
-              let extracurricularVal = Int64(Extracurricular),
-              let sportsVal = Int64(Sports),
-              let musicVal = Int64(Music),
-              let volunteeringVal = Int64(Volunteering),
-              let gpaVal = Double(GPA)
-            
-            else {
-            alertTitle = "Input Error"
-            alertMessage = "Please enter valid numeric values in the appropriate fields."
-            showingAlert = true
-            return
-        }
-
-        print("Age: \(ageVal), Gender: \(genderVal), Ethnicity: \(ethnicityVal), ParentalEducation: \(parentalEducationVal), StudyTimeWeekly: \(studyTimeWeeklyVal), Absences: \(absencesVal), Tutoring: \(tutoringVal), ParentalSupport: \(parentalSupportVal), Extracurricular: \(extracurricularVal), Sports: \(sportsVal), Music: \(musicVal), Volunteering: \(volunteeringVal), GPA: \(GPA)")
-
         do {
             let config = MLModelConfiguration()
             let model = try GradeClassML(configuration: config)
 
             let prediction = try model.prediction(
-                Age: ageVal,
-                Gender: genderVal,
-                Ethnicity: ethnicityVal,
-                ParentalEducation: parentalEducationVal,
-                StudyTimeWeekly: studyTimeWeeklyVal,
-                Absences: absencesVal,
-                Tutoring: tutoringVal,
-                ParentalSupport: parentalSupportVal,
-                Extracurricular: extracurricularVal,
-                Sports: sportsVal,
-                Music: musicVal,
-                Volunteering: volunteeringVal,
-                GPA: gpaVal
+                Age: Int64(age),
+                Gender: gender ? 1 : 0,
+                Ethnicity: Int64(ethnicity),
+                ParentalEducation: Int64(parentalEducation),
+                StudyTimeWeekly: studyTimeWeekly,
+                Absences: Int64(absences),
+                Tutoring: tutoring ? 1 : 0,
+                ParentalSupport: Int64(parentalSupport),
+                Extracurricular: extracurricular ? 1 : 0,
+                Sports: sports ? 1 : 0,
+                Music: music ? 1 : 0,
+                Volunteering: volunteering ? 1 : 0,
+                GPA: gpa
             )
 
-            print("Predicted Outcome: \(prediction.GradeClass)")
-            
-            let gradeClass = Int64(prediction.GradeClass)
-            
+            let gradeClass = Int(prediction.GradeClass)
+
             alertTitle = "Prediction Result"
-            
-            switch gradeClass {
-            case 0:
-                alertMessage = "A - High performance"
-            case 1:
-                alertMessage = "B - Nice performance"
-            case 2:
-                alertMessage = "C - Medium performance"
-            case 3:
-                alertMessage = "D - Low performance"
-            case 4:
-                alertMessage = "F - Sad performance"
-            default:
-                alertMessage = "Unknown performance"
-            }
+            alertMessage = {
+                switch gradeClass {
+                case 0: return "A - High performance"
+                case 1: return "B - Nice performance"
+                case 2: return "C - Medium performance"
+                case 3: return "D - Low performance"
+                case 4: return "F - Sad performance"
+                default: return "Unknown performance"
+                }
+            }()
         } catch {
             alertTitle = "Error"
             alertMessage = "Prediction failed. Please try again."
