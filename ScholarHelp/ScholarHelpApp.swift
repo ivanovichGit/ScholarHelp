@@ -11,7 +11,10 @@ import SwiftUI
 struct ScholarHelpApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationStack {
+                WelcomeView()
+            }
+            .environmentObject(UserManager.shared)
         }
     }
 }
