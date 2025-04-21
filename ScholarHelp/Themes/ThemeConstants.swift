@@ -46,12 +46,13 @@ class ThemeManager: ObservableObject {
     
     private let themeKey = "app_theme_mode"
 
+    // we run didSet each time the value from isDarkMode change
     @Published var isDarkMode: Bool {
         didSet {
             UserDefaults.standard.set(isDarkMode, forKey: themeKey)
         }
     }
-
+    // we read de value saved in the key "app_theme_mode"
     private init() {
         self.isDarkMode = UserDefaults.standard.object(forKey: themeKey) as? Bool ?? false
     }
@@ -118,7 +119,7 @@ struct AppTheme {
         ThemeManager.shared.textSecondary
     }
 
-    // MARK: - Grade Colors (Fixed)
+    // grade colors
     static let gradeA = Color(hex: "4ECDC4")
     static let gradeB = Color(hex: "6C63FF")
     static let gradeC = Color(hex: "FFD166")

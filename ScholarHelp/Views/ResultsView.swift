@@ -247,6 +247,8 @@ struct ResultsView: View {
     
     func getGradeTitle() -> String {
         switch gradeClass {
+        case -1:
+            return "Not Available"
         case 0:
             return "Excellent Performance"
         case 1:
@@ -262,6 +264,8 @@ struct ResultsView: View {
     
     func getGradeDescription() -> String {
         switch gradeClass {
+        case -1:
+            return "No data available for your performance."
         case 0:
             return "You're on track for outstanding academic success!"
         case 1:
@@ -277,6 +281,8 @@ struct ResultsView: View {
     
     func getGradeLetter() -> String {
         switch gradeClass {
+        case -1:
+                return "N/A"
         case 0:
             return "A"
         case 1:
@@ -290,9 +296,11 @@ struct ResultsView: View {
         }
     }
     
-    // Helper functions for performance metrics
+    // helper functions for performance metrics
     func getStudyHabitsScore() -> Double {
         switch gradeClass {
+            case -1:
+                return 0.0
         case 0:
             return 0.95
         case 1:
@@ -308,6 +316,8 @@ struct ResultsView: View {
     
     func getEngagementScore() -> Double {
         switch gradeClass {
+            case -1:
+                return 0.0
         case 0:
             return 0.9
         case 1:
@@ -323,6 +333,8 @@ struct ResultsView: View {
     
     func getSupportScore() -> Double {
         switch gradeClass {
+            case -1:
+                return 0.0
         case 0:
             return 0.85
         case 1:
@@ -338,6 +350,8 @@ struct ResultsView: View {
     
     func getAcademicSkillsScore() -> Double {
         switch gradeClass {
+        case -1:
+            return 0.0
         case 0:
             return 0.9
         case 1:
@@ -351,9 +365,13 @@ struct ResultsView: View {
         }
     }
     
-    // Helper functions for recommendations
+    // helper functions for recommendations
     func getRecommendations() -> [String] {
         switch gradeClass {
+        case -1:
+            return [
+                "No recommendations available at this time."
+            ]
         case 0:
             return [
                 "Continue your excellent study habits",
@@ -424,7 +442,6 @@ struct HelpersListView: View {
                             Spacer()
                             
                             Button(action: {
-                                // Action to message helper
                             }) {
                                 Text("Message")
                                     .font(.subheadline)
@@ -475,7 +492,7 @@ struct NeedHelpListView: View {
                             Spacer()
                             
                             Button(action: {
-                                // Action to offer help
+                                // we should implement functionality to support students who are struggling
                             }) {
                                 Text("Offer Help")
                                     .font(.subheadline)

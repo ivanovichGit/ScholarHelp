@@ -50,11 +50,11 @@ struct TestView: View {
     @State private var predictionResult: Int?
 
     // Student information
-    @State private var age                = 15
+    @State private var age                = 18
     @State private var gender             = false
     @State private var ethnicity          = 0
     @State private var parentalEducation  = 0
-    @State private var studyTimeWeekly    = 5.0
+    @State private var studyTimeWeekly    = 20.0
     @State private var absences           = 0
     @State private var tutoring           = false
     @State private var parentalSupport    = 2
@@ -62,7 +62,7 @@ struct TestView: View {
     @State private var sports             = false
     @State private var music              = false
     @State private var volunteering       = false
-    @State private var gpa                = 3.0
+    @State private var gpa                = 2.0
 
     @State private var currentPage        = 0
     private let totalPages                = 3
@@ -133,7 +133,7 @@ struct TestView: View {
             }
 
             NavigationLink(
-                destination: ResultsView(gradeClass: predictionResult ?? 0),
+                destination: ResultsView(gradeClass: predictionResult ?? -1),
                 isActive: $navigateToResults
             ) { EmptyView() }
         }
@@ -232,7 +232,6 @@ struct TestView: View {
     private var academicInfoSection: some View {
         VStack(spacing: AppTheme.padding) {
 
-            // Study time
             VStack(alignment: .leading, spacing: AppTheme.smallPadding) {
                 Text("Weekly Study Time")
                     .font(.headline)
@@ -295,7 +294,7 @@ struct TestView: View {
                     .font(.headline)
                     .foregroundColor(AppTheme.textPrimary)
 
-                Slider(value: $gpa, in: 2.0 ... 4.0, step: 0.01)
+                Slider(value: $gpa, in: 0.0 ... 4.0, step: 0.01)
                     .accentColor(AppTheme.primary)
 
                 HStack {
@@ -309,6 +308,7 @@ struct TestView: View {
                         Text("4.0: A")
                         Text("3.0: B")
                         Text("2.0: C")
+                        Text("<2.0: F")
                     }
                     .font(.caption)
                     .foregroundColor(AppTheme.textSecondary)
@@ -393,25 +393,58 @@ struct TestView: View {
     }
 
     private func calculatePerformance() {
-        var score = 0.0
-        score += (gpa - 2.0) * 10
-        score += min(studyTimeWeekly / 4, 10)
-        score -= min(Double(absences) / 5, 10)
-        if tutoring { score += 3 }
-        score += Double(parentalSupport) * 1.5
-        if extracurricular { score += 2 }
-        if sports         { score += 2 }
-        if music          { score += 2 }
-        if volunteering   { score += 2 }
+        do {
+            let model = try GradeClassML(configuration: MLModelConfiguration())
 
-        switch score {
-        case ..<10:  predictionResult = 0
-        case ..<20:  predictionResult = 1
-        case ..<30:  predictionResult = 2
-        default:     predictionResult = 3
+            let input = GradeClassMLInput(
+                Age: Int64(age),
+                Gender: Int64(gender ? 1.0 : 0.0),
+                Ethnicity: Int64(ethnicity),
+                ParentalEducation: Int64(parentalEducation),
+                StudyTimeWeekly: studyTimeWeekly,
+                Absences: Int64(absences),
+                Tutoring: Int64(tutoring ? 1.0 : 0.0),
+                ParentalSupport: Int64(parentalSupport),
+                Extracurricular: Int64(extracurricular ? 1.0 : 0.0),
+                Sports: Int64(sports ? 1.0 : 0.0),
+                Music: Int64(music ? 1.0 : 0.0),
+                Volunteering: Int64(volunteering ? 1.0 : 0.0),
+                GPA: gpa
+            )
+            /* print("""
+            Inputs to model:
+            Age: \(age),
+            Gender: \(gender),
+            Ethnicity: \(ethnicity),
+            ParentalEducation: \(parentalEducation),
+            StudyTimeWeekly: \(studyTimeWeekly),
+            Absences: \(absences),
+            Tutoring: \(tutoring),
+            ParentalSupport: \(parentalSupport),
+            Extracurricular: \(extracurricular),
+            Sports: \(sports),
+            Music: \(music),
+            Volunteering: \(volunteering),
+            GPA: \(gpa)
+            """)
+             */
+
+            let output = try model.prediction(input: input)
+            
+            print("Model output: \(output.GradeClass)")
+
+            predictionResult = Int(round(output.GradeClass))
+            
+            // print("Predicted Grade Class: \(predictionResult ?? -1)")
+            
+
+        } catch {
+            print("Error in prediction: \(error)")
+            predictionResult = -1
         }
 
-        userManager.updateCurrentUserGrade(gradeClass: predictionResult ?? 0)
+        userManager.updateCurrentUserGrade(gradeClass: predictionResult ?? -1)
         navigateToResults = true
     }
+
 }
