@@ -41,11 +41,13 @@ extension Color {
     }
 }
 
+
+
+
+
 class ThemeManager: ObservableObject {
     static let shared = ThemeManager()
-    
     private let themeKey = "app_theme_mode"
-
     // we run didSet each time the value from isDarkMode change
     @Published var isDarkMode: Bool {
         didSet {
@@ -56,15 +58,18 @@ class ThemeManager: ObservableObject {
     private init() {
         self.isDarkMode = UserDefaults.standard.object(forKey: themeKey) as? Bool ?? false
     }
-
     func toggleTheme() {
         isDarkMode.toggle()
     }
 
     var primary: Color {
-        isDarkMode ? Color(hex: "8C86FF") : Color(hex: "6C63FF")
+        isDarkMode ? Color(hex: "fa5c84") : Color(hex: "fa5c84")
     }
 
+    
+    
+    
+    
     var secondary: Color {
         Color(hex: "4ECDC4")
     }
